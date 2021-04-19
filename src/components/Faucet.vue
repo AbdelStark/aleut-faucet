@@ -1,5 +1,11 @@
 <template>
   <v-container>
+    <v-alert type="success" v-if="showSuccess" dismissible>
+      Faucet request completed with success.
+    </v-alert>
+    <v-alert type="error" v-if="showFailed" dismissible>
+      Faucet request failed.
+    </v-alert>
     <v-row class="text-center">
       <v-col cols="12">
         <v-img
@@ -18,10 +24,10 @@
       <v-row justify="center">
         <v-col
             class="mb-2"
-            cols="4"
+            cols="6"
         >
           <v-text-field
-              flat solo placeholder="Type your Ethereum address"
+              flat solo placeholder="Your address"
               hide-details="auto"
               v-model="recipient"
           ></v-text-field>
@@ -32,8 +38,8 @@
           class="mb-2"
           cols="12"
       >
-        <v-btn color="indigo accent-4"
-
+        <v-btn color="indigo accent-4" @click="requestFaucet"
+               :loading="faucetLoading"
         >Request 5 ETH
         </v-btn>
       </v-col>
@@ -63,10 +69,16 @@
 </template>
 
 <script>
+const axios = require('axios').default;
+const rpcUrl = 'http://13.54.148.154:8545';
+
 export default {
   name: 'Faucet',
 
   data: () => ({
+    faucetLoading: false,
+    showSuccess: false,
+    showFailed: false,
     recipient: null,
     importantLinks: [
       {
@@ -77,8 +89,44 @@ export default {
   }),
   methods: {
     requestFaucet() {
-
+      this.showFailed = false
+      this.showSuccess = false
+      this.faucetLoading = true
+      console.log('requesting faucet for address: ', this.recipient)
+      const payload = buildRequest(this.recipient);
+      console.log(payload);
+      axios.post(rpcUrl, payload)
+          .then(this.faucetRequestSuccess)
+          .catch(this.faucetRequestError);
     },
+    faucetRequestSuccess(response) {
+      this.faucetLoading = false
+      console.log(response)
+      // eslint-disable-next-line no-prototype-builtins
+      const error = response.data.hasOwnProperty("error");
+      console.log(error)
+      if (error) {
+        this.showFailed = true
+      } else {
+        this.showSuccess = true
+      }
+    },
+    faucetRequestError(error) {
+      console.error(error)
+      this.faucetLoading = false
+      this.showFailed = true
+    }
+  }
+}
+
+function buildRequest(address) {
+  return {
+    "method": "debug_faucet",
+    "id": 1,
+    "jsonrpc": "2.0",
+    "params": [
+      address,
+    ]
   }
 }
 </script>
