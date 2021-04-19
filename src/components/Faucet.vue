@@ -20,6 +20,15 @@
         <h1 class="display-2 font-weight-bold mb-3">
           Welcome to Aleut Faucet
         </h1>
+
+        <p class="subheading font-weight-regular">
+          For help and collaboration with other Ethereum developers,
+          <br>please join our online
+          <a
+            href="https://discord.gg/h6WRxAzvby"
+            target="_blank"
+          >Discord Community</a>
+        </p>
       </v-col>
       <v-row justify="center">
         <v-col
